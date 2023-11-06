@@ -606,6 +606,8 @@ long long sum_km(long long n, const long long modul)
 
 	for (long long a = 1; a <= n; a++)
 	{
+		long long s_a = 0;
+
 		int a_bits = 1;
 
 		long long value_a2 = 1;
@@ -614,8 +616,9 @@ long long sum_km(long long n, const long long modul)
 			a_bits++;
 		}
 
-		for (long long b = 1; b <= n; b++)
+		for (long long b = 1; b < a; b++)
 		{
+			/*/
 			int b_bits = 1;
 
 			long long value_b2 = 1;
@@ -625,6 +628,9 @@ long long sum_km(long long n, const long long modul)
 			}
 
 			auto ab_bits = std::min(a_bits, b_bits);
+			///*/
+
+			auto ab_bits = a_bits;
 
 			for (int k = 1; k <= ab_bits; k++)
 			{
@@ -636,12 +642,18 @@ long long sum_km(long long n, const long long modul)
 
 				if (temp_ab)
 				{
-					s += (a_2_k % modul);
+					s_a += (a_2_k % modul);
 				}
 			}
-
-			s %= modul;
+			
+			s_a %= modul;
 		}
+
+		s_a <<= 1;
+
+		s_a += a;
+
+		s += s_a;
 
 		s %= modul;
 	}
