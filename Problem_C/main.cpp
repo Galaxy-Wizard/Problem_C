@@ -3,12 +3,13 @@
 #include <vector>
 
 #include <list>
+#include <map>
 
 #include "kvant.h"
 
 
 bool test(long long a, long long b);
-
+std::map<long long, long long> test_2(long long a);
 
 
 long long fk(long long k);
@@ -52,7 +53,11 @@ int main()
 
 	std::ofstream sum_output_file("sum_output.txt");
 
-	const long long Modul = 1000000000 + 7;
+	//const long long Modul = 1000000000 + 7;
+
+	const long long Modul = 13;
+
+	//auto sum_parameter = test_2(Modul);
 
 	long long T;
 
@@ -79,7 +84,7 @@ int main()
 		modul_output_file << modul_result << std::endl;
 
 		std::cout << "k = " << k << " ; modul_result = " << modul_result << std::endl;
-		
+
 		long long sum_result = 0;
 		sum_result = sum_km(k, Modul);
 
@@ -591,6 +596,14 @@ long long sum_km(long long n, const long long modul)
 
 	long long s = 0;
 
+	int m_bits = 1;
+
+	long long value_m2 = 1;
+	for (; value_m2 < modul; value_m2 <<= 1)
+	{
+		m_bits++;
+	}
+
 	for (long long a = 1; a <= n; a++)
 	{
 		int a_bits = 1;
@@ -611,32 +624,62 @@ long long sum_km(long long n, const long long modul)
 				b_bits++;
 			}
 
-			int min_bits = std::min(a_bits, b_bits);
+			auto ab_bits = std::min(a_bits, b_bits);
 
-			for (int bits = 0; bits < min_bits; bits++)
+			for (int k = 1; k <= ab_bits; k++)
 			{
-				long long temp_bits = long long(1) << bits;
+				auto a_2_k = a & (long long(1) << (k - 1));
+				bool temp_a_k = bool( a_2_k >> (k - 1) );
+				bool temp_b_k = bool( (b & (long long(1) << (k - 1))) >> (k - 1) );
 
-				bool temp_a = bool( (a & temp_bits) >> bits );
-				bool temp_b = bool( (b & temp_bits) >> bits );
-
-				bool temp_ab = temp_a && temp_b;
+				bool temp_ab = temp_a_k && temp_b_k;
 
 				if (temp_ab)
 				{
-					long long temp_2_bits = long long(temp_ab) << bits;
-
-					s += temp_2_bits;
+					s += (a_2_k % modul);
 				}
-
-				s %= modul;
 			}
 
 			s %= modul;
 		}
+
+		s %= modul;
 	}
 
 	result_s = s % modul;
 
 	return result_s;
+}
+
+std::map<long long, long long> test_2(long long a)
+{
+	std::map<long long, long long> result;
+
+	int a_bits = 1;
+
+	long long value_a2 = 1;
+	for (; value_a2 <= a; value_a2 <<= 1)
+	{
+		a_bits++;
+	}
+
+	for (long long t = 1; t < a_bits; t++)
+	{
+		long long count_t = 0;
+		
+		for (long long i = 1; i <= a; i++)
+		{
+			long long temp_1 = long long(1) << (t - 1);
+
+			if (i & temp_1)
+			{
+				count_t++;
+			}
+		}
+
+		result.insert(std::make_pair(t - 1, count_t));
+		//std::cout << "a = " << a << "; t-1 = " << t-1 << "; count_t = " << count_t << std::endl;
+	}
+
+	return result;
 }
