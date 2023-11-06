@@ -18,11 +18,17 @@ long long fkm(long long k, const long long modul);
 long long fsab(long long a, long long b);
 long long fnab(long long a1, long long a2, long long b1, long long b2);
 
-long long matrix_multiplier(long long k, const long long modul);
+long long matrix_multiplier(long long k, const long long modul, const long long correct_result);
+long long matrix_multiplier_1(long long k, const long long modul, const long long correct_result);
 
 
 long long fkm_sparse_matrix(long long k, const long long modul);
 
+
+long long matrix_multiplier_2(long long n, const long long modul);
+
+
+long long sum_km(long long k, const long long modul);
 
 int main()
 {
@@ -39,6 +45,12 @@ int main()
 	std::ofstream modul_sparse_matrix("modul_sparse_matrix.txt");
 
 	std::ofstream matrix_multiplier_output_file("matrix_multiplier.txt");
+
+	std::ofstream matrix_multiplier_output_file_1("matrix_multiplier_1.txt");
+
+	std::ofstream matrix_multiplier_output_file_2("matrix_multiplier_2.txt");
+
+	std::ofstream sum_output_file("sum_output.txt");
 
 	const long long Modul = 1000000000 + 7;
 
@@ -61,13 +73,34 @@ int main()
 
 		long long k = K;
 
-		//long long modul_result = fkm(k, Modul);
+		long long modul_result = 0;
+		modul_result = fkm(k, Modul);
 
-		//modul_output_file << modul_result << std::endl;
+		modul_output_file << modul_result << std::endl;
 
-		long long matrix_multiplier_result = matrix_multiplier(k, Modul);
+		std::cout << "k = " << k << " ; modul_result = " << modul_result << std::endl;
+		
+		long long sum_result = 0;
+		sum_result = sum_km(k, Modul);
 
-		matrix_multiplier_output_file << matrix_multiplier_result << std::endl;
+		sum_output_file << sum_result << std::endl;
+
+		std::cout << "k = " << k << " ; sum_result = " << sum_result << std::endl;
+
+		//long long matrix_multiplier_result_2 = matrix_multiplier_2(k, Modul);
+
+		//matrix_multiplier_output_file_2 << matrix_multiplier_result_2 << std::endl;
+
+		//std::cout << "k = " << k << " ; matrix_multiplier_result_2 = " << matrix_multiplier_result_2 << std::endl;
+
+
+		//long long matrix_multiplier_result_1 = matrix_multiplier_1(k, Modul, modul_result);
+
+		//matrix_multiplier_output_file_1 << matrix_multiplier_result_1 << std::endl;
+
+		//long long matrix_multiplier_result = matrix_multiplier(k, Modul, modul_result);
+
+		//matrix_multiplier_output_file << matrix_multiplier_result << std::endl;
 
 		////long long modul_sparse_matrix_result = fkm_sparse_matrix(k, Modul);
 
@@ -281,7 +314,7 @@ long long fkm_sparse_matrix(long long k, const long long modul)
 
 
 
-long long matrix_multiplier(long long k, const long long modul)
+long long matrix_multiplier(long long k, const long long modul, const long long correct_result)
 {
 	long long result_k = 0;
 
@@ -306,17 +339,19 @@ long long matrix_multiplier(long long k, const long long modul)
 		{
 			a = 0;
 
+			long long temp = l * k;
+
 			for (long long i = 1; i <= n_bits; i++)
 			{
 				long long aq = 1;
 
 				aq <<= q - 1;
 
-				long long temp = l * k;
+				long long temp_1 = temp;
 
-				temp >>= i - 1;
+				temp_1 >>= i - 1;
 
-				aq &= temp;
+				aq &= temp_1;
 
 				a += aq;
 			}
@@ -342,14 +377,21 @@ long long matrix_multiplier(long long k, const long long modul)
 		b += bi;
 	}
 
-	//for (int counter = 1; counter < r_bits; counter++)
+	for (long counter = 1; counter <= 10000; counter++)
 	{
 		a = A.get();
 
 		result_k = (a * b) % modul;
 
-		std::cout << "k = " << k << " ;a = " << a << " ;b = " << b << " ;result_k = " << result_k << std::endl;
+		//std::cout << "k = " << k << " ;a = " << a << " ;b = " << b << " ;result_k = " << result_k << std::endl;
+		
+		if (correct_result == result_k)
+		{
+			std::cout << "k = " << k << " ;a = " << a << " ;b = " << b << " ;result_k = " << result_k << "; counter = " << counter << std::endl;
+			break;
+		}
 	}
+
 	return result_k;
 }
 
@@ -391,4 +433,210 @@ bool test(long long a, long long b)
 	}
 
 	return true;
+}
+
+
+long long matrix_multiplier_1(long long k, const long long modul, const long long correct_result)
+{
+	long long result_k = 0;
+
+	long long a = 0;
+	long long b = 0;
+
+	Kvant<long long> A;
+	Kvant<long long> B;
+
+	int n_bits = 1;
+
+	long long value_k2 = 1;
+	for (; value_k2 < k; value_k2 <<= 1)
+	{
+		n_bits++;
+	}
+
+	long long temp = 0;
+
+	for (long long l = 1; l <= k+1; l++)
+	{
+		temp += k;
+
+		for (long long i = 1; i <= n_bits * n_bits; i++)
+		{
+			a = temp >> (i - 1);
+
+			A.insert(a);
+		}
+	}
+
+
+	for (long long j = 1; j <= k+1; j++)
+	{
+		b = j;
+
+		B.insert(b);
+	}
+
+	const long attempts_to_guess = 1;
+
+	const long attempts_to_guess_a = attempts_to_guess;
+	const long attempts_to_guess_b = attempts_to_guess;
+
+	const double requested_accuracy = 1.0 / attempts_to_guess_a / attempts_to_guess_b;
+
+	bool solved = false;
+
+	bool attempts_limit_hit = false;
+
+	for (long counter_a = 1; counter_a <= attempts_to_guess_a; counter_a++)
+	{
+		a = A.get();
+
+		for (long counter_b = 1; counter_b <= attempts_to_guess_b; counter_b++)
+		{
+			double accuracy = 1.0 / double(counter_a) / double(counter_b) * 100.0;
+
+			if (accuracy < requested_accuracy)
+			{
+				attempts_limit_hit = true;
+
+				break;
+			}
+
+			b = B.get();
+
+			result_k = (a * b) % modul;
+
+			if (correct_result == result_k)
+			{
+				std::cout << "k = " << k << " ;a = " << a << " ;b = " << b << " ;result_k = " << result_k << "; accuracy (%) = " << accuracy << std::endl;
+
+				solved = true;
+
+				break;
+			}
+		}
+
+		if (solved)
+		{
+			break;
+		}
+
+		if (attempts_limit_hit)
+		{
+			break;
+		}
+	}
+
+	return result_k;
+}
+
+
+
+
+long long matrix_multiplier_2(long long n, const long long modul)
+{
+	long long result_s = 0;
+
+
+	long long sx = 0;
+
+	for (long long x = 1; x <= n; x++)
+	{
+		int x_bits = 1;
+
+		long long value_x2 = 1;
+		for (; value_x2 < x; value_x2 <<= 1)
+		{
+			x_bits++;
+		}
+
+		auto deg_2_x = x_bits;
+
+		long long sy = 0;
+
+		for (long long y = 1; y <= n; y++)
+		{
+			int y_bits = 1;
+
+			long long value_y2 = 1;
+			for (; value_y2 < y; value_y2 <<= 1)
+			{
+				y_bits++;
+			}
+
+			auto deg_2_y = y_bits;
+
+			for (auto counter_y = 1; counter_y <= deg_2_y; counter_y++)
+			{
+				sy += counter_y;
+			}
+		}
+
+		for (auto counter_x = 1; counter_x <= deg_2_x; counter_x++)
+		{
+			sx += counter_x * sy;
+		}
+	}
+
+	long long s = sx;
+
+	result_s = s % modul;
+
+	return result_s;
+}
+
+long long sum_km(long long n, const long long modul)
+{
+	long long result_s = 0;
+
+	long long s = 0;
+
+	for (long long a = 1; a <= n; a++)
+	{
+		int a_bits = 1;
+
+		long long value_a2 = 1;
+		for (; value_a2 < a; value_a2 <<= 1)
+		{
+			a_bits++;
+		}
+
+		for (long long b = 1; b <= n; b++)
+		{
+			int b_bits = 1;
+
+			long long value_b2 = 1;
+			for (; value_b2 < b; value_b2 <<= 1)
+			{
+				b_bits++;
+			}
+
+			int min_bits = std::min(a_bits, b_bits);
+
+			for (int bits = 0; bits < min_bits; bits++)
+			{
+				long long temp_bits = long long(1) << bits;
+
+				bool temp_a = bool( (a & temp_bits) >> bits );
+				bool temp_b = bool( (b & temp_bits) >> bits );
+
+				bool temp_ab = temp_a && temp_b;
+
+				if (temp_ab)
+				{
+					long long temp_2_bits = long long(temp_ab) << bits;
+
+					s += temp_2_bits;
+				}
+
+				s %= modul;
+			}
+
+			s %= modul;
+		}
+	}
+
+	result_s = s % modul;
+
+	return result_s;
 }
