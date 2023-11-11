@@ -10,31 +10,31 @@
 
 #include <bitset>
 
-long long fkm(long long k, const long long modul);
+unsigned long long fkm(unsigned long long k, const unsigned long long modul);
 
-long long s_bits(long long n, const long long modul);
+unsigned long long s_bits(unsigned long long n, const unsigned long long modul);
 
 int main()
 {
-	std::list<long long> N;
+	std::list<unsigned long long> N;
 
 	//std::ifstream input_file("input.txt");
 
 	//std::ofstream output_file("output.txt");
 
-	const long long modul = 1000000000 + 7;
+	const unsigned long long modul = 1000000000 + 7;
 
-	//const long long Modul = 13;
+	//const unsigned long long Modul = 13;
 
 
-	long long quantity;
+	unsigned long long quantity;
 
 	//input_file >> quantity;
 	std::cin >> quantity;
 
-	for (long long counter = 0; counter < quantity; counter++)
+	for (unsigned long long counter = 0; counter < quantity; counter++)
 	{
-		long long n;
+		unsigned long long n;
 		//input_file >> n;
 		std::cin >> n;
 
@@ -43,17 +43,17 @@ int main()
 
 	for (auto counter_1 = N.begin(); counter_1 != N.end(); counter_1++)
 	{
-		long long k = *counter_1;
+		unsigned long long k = *counter_1;
 
 		{
-			//long long result = 0;
-			//result = fkm(k, modul);
+			unsigned long long result = 0;
+			result = fkm(k, modul);
 
-			//std::cout	<< result << std::endl;	
+			std::cout	<< result << std::endl;	
 		}
 
 		{
-			long long result = 0;
+			unsigned long long result = 0;
 			result = s_bits(k, modul);
 
 			std::cout << result << std::endl;
@@ -65,17 +65,17 @@ int main()
 	return 1;
 }
 
-long long fkm(long long k, const long long modul)
+unsigned long long fkm(unsigned long long k, const unsigned long long modul)
 {
-	long long result_k = 0;
+	unsigned long long result_k = 0;
 
-	for (long long i = 1; i <= k; i++)
+	for (unsigned long long i = 1; i <= k; i++)
 	{
-		long long s_i = 0;
+		unsigned long long s_i = 0;
 
-		for (long long j = 1; j < i; j++)
+		for (unsigned long long j = 1; j < i; j++)
 		{
-			long long value = i & j;
+			unsigned long long value = i & j;
 
 			if (value != 0)
 			{
@@ -97,38 +97,41 @@ long long fkm(long long k, const long long modul)
 	return result_k;
 }
 
-long long s_bits(long long n, const long long modul)
+unsigned long long s_bits(unsigned long long n, const unsigned long long modul)
 {
 	const size_t maximum_bits = size_t(31) + size_t(31);
 
 	size_t n_bits_size = 1;
 
-	for (long long counter = 1; counter < n; counter <<= 1)
+	for (unsigned long long counter = 1; counter < n; counter <<= 1)
 	{
 		n_bits_size++;
 	}
 
-	long long result = 0;
+	unsigned long long result = 0;
 
-	for (long long counter_1 = 1; counter_1 <= n; counter_1++)
+	for (unsigned long long counter_1 = 1; counter_1 <= n; counter_1++)
 	{
-		std::bitset<maximum_bits> a_bits = counter_1;
+		const std::bitset<maximum_bits> a_bits = counter_1;
 
-		for (long long counter_2 = 1; counter_2 <= n; counter_2++)
+		unsigned long long sum_bits = 0;
+
+		for (unsigned long long counter_2 = 1; counter_2 < counter_1; counter_2++)
 		{
-			std::bitset<maximum_bits> c_bits = 0;
+			const auto b_bits = counter_2;
 
-			size_t real_bits = std::min(n_bits_size, maximum_bits);
+			auto c_bits = a_bits;
 
-			std::bitset<maximum_bits> b_bits = counter_2;
+			c_bits &= b_bits;
 
-			for (size_t counter_bits = 0; counter_bits < real_bits; counter_bits++)
-			{
-				c_bits[counter_bits] = a_bits[counter_bits] && b_bits[counter_bits];
-			}
-
-			result += c_bits.to_ullong() % modul;
+			sum_bits += c_bits.to_ullong() << 1;
 		}
+
+		result += sum_bits;
+
+		result += counter_1;
+
+		result %= modul;
 	}
 
 	result %= modul;
