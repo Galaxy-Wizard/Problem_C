@@ -4,14 +4,20 @@
 
 #include <list>
 #include <map>
+
+#include <vector>
 #include <memory>
 
+#include <bitset>
 
-void s_n_calculator(long long n, const long long modul, std::map<long long, long> &s_n);
+void s_n_1_calculator(long long k, const long long modul, std::map<long long, long>& s_n_1);
+void s_n_calculator(long long n, const long long modul, std::map<long long, long> &s_n, std::map<long long, long> &s_n_1);
 
 long long fkm(long long k, const long long modul);
 
 long long s_r(long long n, const long long modul);
+
+long long s_bits(long long n, const long long modul);
 
 const long long maximum_k = 20000;
 
@@ -31,47 +37,58 @@ int main()
 
 	if (s_n.get() != nullptr)
 	{
-		s_n_calculator(maximum_k, modul, *s_n);
+		std::auto_ptr<std::map<long long, long>> s_n_1(new std::map<long long, long>);
 
-		long long quantity;
-
-		//input_file >> quantity;
-		std::cin >> quantity;
-
-		for (long long counter = 0; counter < quantity; counter++)
+		if (s_n_1.get() != nullptr)
 		{
-			long long n;
-			//input_file >> n;
-			std::cin >> n;
+			//s_n_1_calculator(maximum_k, modul, *s_n_1);
+			//s_n_calculator(maximum_k, modul, *s_n, *s_n_1);
 
-			N.push_back(n);
-		}
+			long long quantity;
 
-		for (auto counter_1 = N.begin(); counter_1 != N.end(); counter_1++)
-		{
-			long long k = *counter_1;
+			//input_file >> quantity;
+			std::cin >> quantity;
 
-			if (k <= maximum_k)
+			for (long long counter = 0; counter < quantity; counter++)
 			{
-				//long long result = 0;
-				//result = fkm(k, Modul);
+				long long n;
+				//input_file >> n;
+				std::cin >> n;
 
-				//std::cout	<< result << std::endl;	
-
-				//output_file << result << std::endl;
-
-				std::cout << s_n->at(k) << std::endl;
-
-				//output_file << s_n->at(k) << std::endl;
+				N.push_back(n);
 			}
-			else
+
+			for (auto counter_1 = N.begin(); counter_1 != N.end(); counter_1++)
 			{
-				//output_file << 0 << std::endl;
-				std::cout << long(0) << std::endl;
-			}
-		}
+				long long k = *counter_1;
 
-		return 1;
+				if (k <= maximum_k)
+				{
+					//long long result = 0;
+					//result = fkm(k, modul);
+
+					//std::cout	<< result << std::endl;	
+
+					long long result = 0;
+					result = s_bits(k, modul);
+
+					std::cout << result << std::endl;
+
+					//output_file << result << std::endl;
+
+					//std::cout << s_n->at(k) << std::endl;
+
+					//output_file << s_n->at(k) << std::endl;
+				}
+				else
+				{
+					//output_file << 0 << std::endl;
+					std::cout << long(0) << std::endl;
+				}
+			}
+
+			return 1;
+		}
 	}
 
 	return 0;
@@ -140,7 +157,7 @@ long long s_r(long long n, const long long modul)
 	return result;
 }
 
-void s_n_calculator(long long n, const long long modul, std::map<long long, long> &s_n)
+void s_n_calculator(long long n, const long long modul, std::map<long long, long> &s_n, std::map<long long, long> &s_n_1)
 {
 	if (n > 0)
 	{
@@ -148,12 +165,7 @@ void s_n_calculator(long long n, const long long modul, std::map<long long, long
 
 		for (long long k = 2; k <= n; k++)
 		{
-			long long sum_1 = 0;
-
-			for (long long a = 1; a < k; a++)
-			{
-				sum_1 += a & k;
-			}
+			long long sum_1 = s_n_1.at(k);
 
 			long long sum_2 = 0;
 
@@ -166,4 +178,58 @@ void s_n_calculator(long long n, const long long modul, std::map<long long, long
 			s_n.insert(std::make_pair(k, long(sum_2 % modul)));
 		}
 	}
+}
+
+void s_n_1_calculator(long long n, const long long modul, std::map<long long, long>& s_n_1)
+{
+	if (n > 0)
+	{
+		s_n_1.insert(std::make_pair(1, 1));
+
+		for (long long k = 2; k <= n; k++)
+		{
+			long long sum_1 = 0;
+
+			for (long long a = 1; a < k; a++)
+			{
+				sum_1 += a & k;
+			}
+
+			s_n_1.insert(std::make_pair(k, long(sum_1 % modul)));
+		}
+	}
+}
+
+long long s_bits(long long n, const long long modul)
+{
+	const size_t maximum_bits = 100;
+
+	std::vector<std::bitset<maximum_bits>> a_bits;
+	std::vector<std::bitset<maximum_bits>> b_bits;
+
+	//std::auto_ptr<std::bitset<maximum_bits>> c_bits(new std::bitset<maximum_bits>[n]);
+
+	a_bits.resize(n);
+	b_bits.resize(n);
+
+	for (long long counter = 0; counter < n; counter++)
+	{
+		a_bits[counter] = (counter + 1);
+		b_bits[counter] = (counter + 1);
+	}
+
+	long long result = 0;
+
+	for (long long counter_1 = 0; counter_1 < n; counter_1++)
+	{
+		for (long long counter_2 = 0; counter_2 < n; counter_2++)
+		{
+			for (size_t counter_bits = 0; counter_bits < maximum_bits; counter_bits++)
+			{
+				result += long long((a_bits[counter_1][counter_bits]) & (b_bits[counter_2][counter_bits])) << counter_bits;
+			}
+		}
+	}
+
+	return result;
 }
