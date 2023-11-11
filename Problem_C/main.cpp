@@ -1,9 +1,11 @@
 #include <iostream>
 
-#include <fstream>
+//#include <fstream>
 
 #include <list>
 #include <map>
+#include <memory>
+
 
 void s_n_calculator(long long n, const long long modul, std::map<long long, long> &s_n);
 
@@ -25,49 +27,54 @@ int main()
 
 	//const long long Modul = 13;
 
-	std::map<long long, long> s_n;
+	std::auto_ptr<std::map<long long, long>> s_n(new std::map<long long, long>);
 
-	s_n_calculator(maximum_k, modul, s_n);
-
-	long long quantity;
-
-	//input_file >> quantity;
-	std::cin >> quantity;
-
-	for (long long counter = 0; counter < quantity; counter++)
+	if (s_n.get() != nullptr)
 	{
-		long long n;
-		//input_file >> n;
-		std::cin >> n;
+		s_n_calculator(maximum_k, modul, *s_n);
 
-		N.push_back(n);
+		long long quantity;
+
+		//input_file >> quantity;
+		std::cin >> quantity;
+
+		for (long long counter = 0; counter < quantity; counter++)
+		{
+			long long n;
+			//input_file >> n;
+			std::cin >> n;
+
+			N.push_back(n);
+		}
+
+		for (auto counter_1 = N.begin(); counter_1 != N.end(); counter_1++)
+		{
+			long long k = *counter_1;
+
+			if (k <= maximum_k)
+			{
+				//long long result = 0;
+				//result = fkm(k, Modul);
+
+				//std::cout	<< result << std::endl;	
+
+				//output_file << result << std::endl;
+
+				std::cout << s_n->at(k) << std::endl;
+
+				//output_file << s_n->at(k) << std::endl;
+			}
+			else
+			{
+				//output_file << 0 << std::endl;
+				std::cout << long(0) << std::endl;
+			}
+		}
+
+		return 1;
 	}
 
-	for (auto counter_1 = N.begin(); counter_1 != N.end(); counter_1++)
-	{
-		long long k = *counter_1;
-
-		if (k <= maximum_k)
-		{
-			//long long result = 0;
-			//result = fkm(k, Modul);
-
-			//std::cout	<< result << std::endl;	
-
-			//output_file << result << std::endl;
-
-			std::cout << s_n.at(k) << std::endl;
-
-			//output_file << s_n[k] << std::endl;
-		}
-		else
-		{
-			//output_file << 0 << std::endl;
-			std::cout << long(0) << std::endl;
-		}
-	}
-
-	return 1;
+	return 0;
 }
 
 long long fkm(long long k, const long long modul)
