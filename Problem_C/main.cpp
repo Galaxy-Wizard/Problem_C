@@ -2,38 +2,39 @@
 
 #include <fstream>
 
-#include <vector>
+#include <list>
 #include <map>
 
-std::map<long long, long> s_n;
-void s_n_calculator(long long n, const long long modul);
+void s_n_calculator(long long n, const long long modul, std::map<long long, long> &s_n);
 
 long long fkm(long long k, const long long modul);
 
 long long s_r(long long n, const long long modul);
 
-const long long maximum_k = 50000;
+const long long maximum_k = 20000;
 
 int main()
 {
-	std::vector<long long> N;
+	std::list<long long> N;
 
 	//std::ifstream input_file("input.txt");
 
 	//std::ofstream output_file("output.txt");
 
-	const long long Modul = 1000000000 + 7;
+	const long long modul = 1000000000 + 7;
 
 	//const long long Modul = 13;
 
-	s_n_calculator(maximum_k, Modul);
+	std::map<long long, long> s_n;
 
-	long long T;
+	s_n_calculator(maximum_k, modul, s_n);
 
-	//input_file >> T;
-	std::cin >> T;
+	long long quantity;
 
-	for (long long counter = 0; counter < T; counter++)
+	//input_file >> quantity;
+	std::cin >> quantity;
+
+	for (long long counter = 0; counter < quantity; counter++)
 	{
 		long long n;
 		//input_file >> n;
@@ -42,31 +43,27 @@ int main()
 		N.push_back(n);
 	}
 
-	for (int counter_T = 0; counter_T < T; counter_T++)
+	for (auto counter_1 = N.begin(); counter_1 != N.end(); counter_1++)
 	{
-		long long result = 0;
-		long long K = N.at(counter_T);
-
-		long long k = K;
-
+		long long k = *counter_1;
 
 		if (k <= maximum_k)
 		{
-			//long long modul_result = 0;
-			//modul_result = fkm(k, Modul);
+			//long long result = 0;
+			//result = fkm(k, Modul);
 
-			//std::cout	<< modul_result << std::endl;	
+			//std::cout	<< result << std::endl;	
 
-			//output_file << modul_result << std::endl;
+			//output_file << result << std::endl;
 
-			std::cout << s_n[k] << std::endl;
+			std::cout << s_n.at(k) << std::endl;
 
 			//output_file << s_n[k] << std::endl;
 		}
 		else
 		{
 			//output_file << 0 << std::endl;
-			std::cout << 0 << std::endl;
+			std::cout << long(0) << std::endl;
 		}
 	}
 
@@ -136,7 +133,7 @@ long long s_r(long long n, const long long modul)
 	return result;
 }
 
-void s_n_calculator(long long n, const long long modul)
+void s_n_calculator(long long n, const long long modul, std::map<long long, long> &s_n)
 {
 	if (n > 0)
 	{
