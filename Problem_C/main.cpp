@@ -62,7 +62,7 @@ int main()
 		}
 	}
 
-	return 0;
+	return 1;
 }
 
 long long fkm(long long k, const long long modul)
