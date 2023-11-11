@@ -207,8 +207,6 @@ long long s_bits(long long n, const long long modul)
 	std::vector<std::bitset<maximum_bits>> a_bits;
 	std::vector<std::bitset<maximum_bits>> b_bits;
 
-	//std::auto_ptr<std::bitset<maximum_bits>> c_bits(new std::bitset<maximum_bits>[n]);
-
 	a_bits.resize(n);
 	b_bits.resize(n);
 
@@ -224,12 +222,18 @@ long long s_bits(long long n, const long long modul)
 	{
 		for (long long counter_2 = 0; counter_2 < n; counter_2++)
 		{
+			std::bitset<maximum_bits> c_bits = 0;
+
 			for (size_t counter_bits = 0; counter_bits < maximum_bits; counter_bits++)
 			{
-				result += long long((a_bits[counter_1][counter_bits]) & (b_bits[counter_2][counter_bits])) << counter_bits;
+				c_bits[counter_bits] = a_bits[counter_1][counter_bits] && b_bits[counter_2][counter_bits];
 			}
+
+			result += c_bits.to_ullong() % modul;
 		}
 	}
+
+	result %= modul;
 
 	return result;
 }
