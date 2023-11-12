@@ -10,6 +10,8 @@
 
 #include <bitset>
 
+#include <ppl.h>
+
 unsigned long long fkm(unsigned long long k, const unsigned long long modul);
 
 unsigned long long s_bits(unsigned long long n, const unsigned long long modul);
@@ -45,7 +47,7 @@ int main()
 	{
 		unsigned long long k = *counter_1;
 
-		/*///
+		///*///
 		{
 			unsigned long long result = 0;
 			result = fkm(k, modul);
@@ -54,6 +56,7 @@ int main()
 		}
 		///*/
 
+		///*///
 		{
 			unsigned long long result = 0;
 			result = s_bits(k, modul);
@@ -62,6 +65,7 @@ int main()
 
 			//output_file << result << std::endl;
 		}
+		///*/
 	}
 
 	return 1;
@@ -101,7 +105,7 @@ unsigned long long fkm(unsigned long long k, const unsigned long long modul)
 
 unsigned long long s_bits(unsigned long long n, const unsigned long long modul)
 {
-	const size_t maximum_bits = size_t(31) + size_t(31);
+	#define maximum_bits (size_t(31) + size_t(31))
 
 	size_t n_bits_size = 1;
 
@@ -112,29 +116,36 @@ unsigned long long s_bits(unsigned long long n, const unsigned long long modul)
 
 	unsigned long long result = 0;
 
-	for (unsigned long long counter_1 = 1; counter_1 <= n; counter_1++)
-	{
-		const std::bitset<maximum_bits> a_bits = counter_1;
 
-		unsigned long long sum_bits = 0;
-
-		for (unsigned long long counter_2 = 1; counter_2 < counter_1; counter_2++)
+	concurrency::critical_section cs_1;
+	
+	//for (unsigned long long counter_1 = 1; counter_1 <= n; counter_1++)
+	concurrency::parallel_for(unsigned long long(1), n + 1, [&](unsigned long long counter_1)
 		{
-			const auto b_bits = counter_2;
+			const std::bitset<maximum_bits> a_bits = counter_1;
 
-			auto c_bits = a_bits;
+			unsigned long long sum_bits = 0;
 
-			c_bits &= b_bits;
 
-			sum_bits += c_bits.to_ullong() << 1;
-		}
+			for (unsigned long long counter_2 = 1; counter_2 < counter_1; counter_2++)
+			{
+				const auto b_bits = counter_2;
 
-		result += sum_bits;
+				auto c_bits = a_bits;
 
-		result += counter_1;
+				c_bits &= b_bits;
 
-		result %= modul;
-	}
+				sum_bits += c_bits.to_ullong() << 1;
+			}
+
+			sum_bits += counter_1;
+
+			cs_1.lock();
+
+			result += sum_bits % modul;
+
+			cs_1.unlock();
+		});
 
 	result %= modul;
 
