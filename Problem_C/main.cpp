@@ -45,12 +45,14 @@ int main()
 	{
 		unsigned long long k = *counter_1;
 
+		/*///
 		{
 			unsigned long long result = 0;
 			result = fkm(k, modul);
 
 			std::cout	<< result << std::endl;	
 		}
+		///*/
 
 		{
 			unsigned long long result = 0;
