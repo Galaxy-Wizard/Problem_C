@@ -10,8 +10,6 @@
 
 #include <bitset>
 
-#include <ppl.h>
-
 unsigned long long fkm(unsigned long long k, const unsigned long long modul);
 
 unsigned long long s_bits(unsigned long long n, const unsigned long long modul);
@@ -68,7 +66,7 @@ int main()
 		///*/
 	}
 
-	return 1;
+	return 0;
 }
 
 unsigned long long fkm(unsigned long long k, const unsigned long long modul)
@@ -109,45 +107,48 @@ unsigned long long s_bits(unsigned long long n, const unsigned long long modul)
 
 	size_t n_bits_size = 1;
 
-	for (unsigned long long counter = 1; counter < n; counter <<= 1)
+	for (unsigned long long counter = 1; counter <= n; counter <<= 1)
 	{
 		n_bits_size++;
 	}
 
-	unsigned long long result = 0;
+	if (n_bits_size < maximum_bits)
+	{
 
+		auto d = n / modul;
+		auto c = n % modul;
 
-	concurrency::critical_section cs_1;
-	
-	//for (unsigned long long counter_1 = 1; counter_1 <= n; counter_1++)
-	concurrency::parallel_for(unsigned long long(1), n + 1, [&](unsigned long long counter_1)
+		std::vector<long> set_bits_quantity_by_bit;
+
+		set_bits_quantity_by_bit.resize(n_bits_size);
+
+		for (unsigned long long counter = 0; counter <= c; counter++)
 		{
-			const std::bitset<maximum_bits> a_bits = counter_1;
-
-			unsigned long long sum_bits = 0;
-
-
-			for (unsigned long long counter_2 = 1; counter_2 < counter_1; counter_2++)
+			for (long n_bits_counter = 0; n_bits_counter < n_bits_size; n_bits_counter++)
 			{
-				const auto b_bits = counter_2;
-
-				auto c_bits = a_bits;
-
-				c_bits &= b_bits;
-
-				sum_bits += c_bits.to_ullong() << 1;
+				if (counter & (unsigned long long(1) << n_bits_counter))
+				{
+					set_bits_quantity_by_bit[n_bits_counter]++;
+				}
 			}
+		}
 
-			sum_bits += counter_1;
+		for (long n_bits_counter = 0; n_bits_counter < n_bits_size; n_bits_counter++)
+		{
+			set_bits_quantity_by_bit[n_bits_counter] += long (d * set_bits_quantity_by_bit[n_bits_counter]);
+		}
 
-			cs_1.lock();
+		unsigned long long result = 0;
 
-			result += sum_bits % modul;
+		for (long n_bits_counter = 0; n_bits_counter < n_bits_size; n_bits_counter++)
+		{
+			//result += unsigned long long(set_bits_quantity_by_bit[n_bits_counter]) * (unsigned long long(1) << n_bits_counter);
+		}
 
-			cs_1.unlock();
-		});
+		result %= modul;
 
-	result %= modul;
+		return result;
+	}
 
-	return result;
+	return 0;
 }
