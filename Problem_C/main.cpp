@@ -45,7 +45,7 @@ int main()
 	{
 		unsigned long long k = *counter_1;
 
-		///*///
+		/*///
 		{
 			unsigned long long result = 0;
 			result = fkm(k, modul);
@@ -115,38 +115,27 @@ unsigned long long s_bits(unsigned long long n, const unsigned long long modul)
 	if (n_bits_size < maximum_bits)
 	{
 
-		auto d = n / modul;
-		auto c = n % modul;
-
 		std::vector<long> set_bits_quantity_by_bit;
 
 		set_bits_quantity_by_bit.resize(n_bits_size);
 
-		for (unsigned long long counter = 1; counter <= c; counter++)
+		for (unsigned long long counter = 1; counter <= n; counter++)
 		{
 			for (long n_bits_counter = 0; n_bits_counter < n_bits_size; n_bits_counter++)
 			{
-				if (counter & (unsigned long long(1) << n_bits_counter))
+				if (counter & (1ULL << n_bits_counter))
 				{
 					set_bits_quantity_by_bit[n_bits_counter]++;
 				}
 			}
 		}
 
-		for (long n_bits_counter = 0; n_bits_counter < n_bits_size; n_bits_counter++)
-		{
-			set_bits_quantity_by_bit[n_bits_counter] += long (d * set_bits_quantity_by_bit[n_bits_counter]);
-		}
-
 		unsigned long long result = 0;
 
-		for (unsigned long long counter = 1; counter <= c; counter++)
+		for (long n_bits_counter = 0; n_bits_counter < n_bits_size; n_bits_counter++)
 		{
-			for (long n_bits_counter = 0; n_bits_counter < n_bits_size; n_bits_counter++)
-			{
-				//	Здесь теряются слагаемые в которых несколько бит установлены.
-				result += counter & (unsigned long long(set_bits_quantity_by_bit[n_bits_counter]) * (unsigned long long(1) << n_bits_counter));
-			}
+			result += (set_bits_quantity_by_bit[n_bits_counter] ) * ((unsigned long long)(set_bits_quantity_by_bit[n_bits_counter]) * (1ULL << n_bits_counter));
+			result %= modul;
 		}
 
 		result %= modul;
