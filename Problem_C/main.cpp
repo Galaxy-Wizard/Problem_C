@@ -10,31 +10,31 @@
 
 #include <bitset>
 
-unsigned long long fkm(unsigned long long k, const unsigned long long modul);
+long long fkm(long long k, const long long modul);
 
-unsigned long long s_bits(unsigned long long n, const unsigned long long modul);
+long long s_bits(long long n, const long long modul);
 
 int main()
 {
-	std::list<unsigned long long> N;
+	std::list<long long> N;
 
 	//std::ifstream input_file("input.txt");
 
 	//std::ofstream output_file("output.txt");
 
-	const unsigned long long modul = 1000000000 + 7;
+	const long long modul = 1000000000 + 7;
 
-	//const unsigned long long Modul = 13;
+	//const long long Modul = 13;
 
 
-	unsigned long long quantity;
+	long long quantity;
 
 	//input_file >> quantity;
 	std::cin >> quantity;
 
-	for (unsigned long long counter = 0; counter < quantity; counter++)
+	for (long long counter = 0; counter < quantity; counter++)
 	{
-		unsigned long long n;
+		long long n;
 		//input_file >> n;
 		std::cin >> n;
 
@@ -43,11 +43,11 @@ int main()
 
 	for (auto counter_1 = N.begin(); counter_1 != N.end(); counter_1++)
 	{
-		unsigned long long k = *counter_1;
+		long long k = *counter_1;
 
 		/*///
 		{
-			unsigned long long result = 0;
+			long long result = 0;
 			result = fkm(k, modul);
 
 			std::cout	<< result << std::endl;	
@@ -56,7 +56,7 @@ int main()
 
 		///*///
 		{
-			unsigned long long result = 0;
+			long long result = 0;
 			result = s_bits(k, modul);
 
 			std::cout << result << std::endl;
@@ -69,17 +69,17 @@ int main()
 	return 0;
 }
 
-unsigned long long fkm(unsigned long long k, const unsigned long long modul)
+long long fkm(long long k, const long long modul)
 {
-	unsigned long long result_k = 0;
+	long long result_k = 0;
 
-	for (unsigned long long i = 1; i <= k; i++)
+	for (long long i = 1; i <= k; i++)
 	{
-		unsigned long long s_i = 0;
+		long long s_i = 0;
 
-		for (unsigned long long j = 1; j < i; j++)
+		for (long long j = 1; j < i; j++)
 		{
-			unsigned long long value = i & j;
+			long long value = i & j;
 
 			if (value != 0)
 			{
@@ -101,40 +101,42 @@ unsigned long long fkm(unsigned long long k, const unsigned long long modul)
 	return result_k;
 }
 
-unsigned long long s_bits(unsigned long long n, const unsigned long long modul)
+long long s_bits(long long n, const long long modul)
 {
-	#define maximum_bits (size_t(31) + size_t(31))
+	#define maximum_bits ((long long)(31) + (long long)(31))
 
-	size_t n_bits_size = 1;
+	long long n_bits_size = 1;
 
-	for (unsigned long long counter = 1; counter <= n; counter <<= 1)
+	for (long long counter = 1; counter <= n; counter <<= 1)
 	{
 		n_bits_size++;
 	}
 
-	if (n_bits_size < maximum_bits)
+	n_bits_size = maximum_bits;
+
+	//if (n_bits_size < maximum_bits)
 	{
 
-		std::vector<long> set_bits_quantity_by_bit;
+		std::vector<long long> set_bits_quantity_by_bit;
 
 		set_bits_quantity_by_bit.resize(n_bits_size);
 
-		for (unsigned long long counter = 1; counter <= n; counter++)
+		for (long long n_bits_counter = 0; n_bits_counter < n_bits_size; n_bits_counter++)
 		{
-			for (long n_bits_counter = 0; n_bits_counter < n_bits_size; n_bits_counter++)
-			{
-				if (counter & (1ULL << n_bits_counter))
-				{
-					set_bits_quantity_by_bit[n_bits_counter]++;
-				}
-			}
+			set_bits_quantity_by_bit[n_bits_counter] = ((n >> (n_bits_counter + 1)) << n_bits_counter);
+
+			set_bits_quantity_by_bit[n_bits_counter] += std::max(0LL, n % (1LL << (n_bits_counter + 1)) - (1LL << n_bits_counter) + 1);
+
+			set_bits_quantity_by_bit[n_bits_counter] %= modul;
 		}
 
-		unsigned long long result = 0;
+		long long result = 0;
 
-		for (long n_bits_counter = 0; n_bits_counter < n_bits_size; n_bits_counter++)
+		for (long long n_bits_counter = 0; n_bits_counter < n_bits_size; n_bits_counter++)
 		{
-			result += (set_bits_quantity_by_bit[n_bits_counter] ) * ((unsigned long long)(set_bits_quantity_by_bit[n_bits_counter]) * (1ULL << n_bits_counter));
+			long long temp_1 = (set_bits_quantity_by_bit[n_bits_counter] * set_bits_quantity_by_bit[n_bits_counter]) % modul;
+			long long temp_2 = (1LL << n_bits_counter) % modul;
+			result += temp_1 * temp_2;
 			result %= modul;
 		}
 
